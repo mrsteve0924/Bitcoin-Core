@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# list used and new addresses
+echo
+echo "Current Wallet Addresses"
+bitcoin-cli getaddressesbylabel "" | grep ": {" | cut -d \" -f2 | cut -d { -f2
+
+echo
+echo "Used Receiving Addresses"
+bitcoin-cli listreceivedbyaddress | grep address | cut -d : -f2 | cut -d \" -f2
+
+echo
+
+bitcoin-cli getaddressesbylabel "" | grep ": {" | cut -d \" -f2 | cut -d { -f2 > addresses1
+bitcoin-cli listreceivedbyaddress | grep address | cut -d : -f2 | cut -d \" -f2 > addresses2
+
+echo "New Addresses"
+diff addresses1 addresses2 | grep \< | cut -d \< -f2 | sed 's/^[ \t]*//;s/[ \t]*$//'
+
+echo
