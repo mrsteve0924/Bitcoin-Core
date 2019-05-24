@@ -1,0 +1,50 @@
+#!/bin/bash
+
+pi=$(echo "scale=9; $(bitcoin-cli getnettotals | grep recv | cut -d : -f2 | sed 's/,$//')/1000000000" | bc)
+pi2=$(echo "scale=9; $(bitcoin-cli getnettotals | grep sent | cut -d : -f2 | sed 's/,$//')/1000000000" | bc)
+pi3=$(echo "scale=2; $(bitcoin-cli uptime)/86400" | bc) #days
+pi31=$(bitcoin-cli uptime | sed -e :a -e 's/\(.*[0-9]\)\([0-9]\{3\}\)/\1,\2/;ta')   #seconds
+pi32=$(echo "scale=0; $(bitcoin-cli uptime)/60" | bc | sed -e :a -e 's/\(.*[0-9]\)\([0-9]\{3\}\)/\1,\2/;ta')  #minutes
+pi33=$(echo "scale=2; $(bitcoin-cli uptime)/60/60" | bc)  #hours
+pi4=$(bitcoin-cli getconnectioncount)
+pi5=$(bitcoin-cli getbalance)
+pi6=$(curl -s https://api.coindesk.com/v1/bpi/currentprice/usd.json | grep -o 'rate":"[^"]*' | cut -d\" -f3)
+pi8=$(curl -s https://api.coindesk.com/v1/bpi/currentprice/usd.json | grep -o 'rate_float":[^}]*' | cut -d : -f2)
+pi7=$(echo "scale=2; ($pi5*$pi8)/1" | bc)
+pi9=$(bitcoin-cli getblockchaininfo | grep -o '"blocks":[^,]*' | cut -d : -f2 | sed 's/^[ \t]*//;s/[ \t]*$//' | sed -e :a -e 's/\(.*[0-9]\)\([0-9]\{3\}\)/\1,\2/;ta')
+pi91=$(bitcoin-cli getblockchaininfo | grep -o '"headers":[^,]*' | cut -d : -f2 | sed 's/^[ \t]*//;s/[ \t]*$//' | sed -e :a -e 's/\(.*[0-9]\)\([0-9]\{3\}\)/\1,\2/;ta')
+fee1=$(bitcoin-cli estimatesmartfee 6 | grep fee | cut -d : -f2 | sed 's/,$//')
+fee2=$(echo "scale=2; ($fee1*.250*$pi8)/1" | bc)
+blocks=$(bitcoin-cli estimatesmartfee 6 | grep blocks | cut -d : -f2)
+
+
+echo Bitcoin Stats
+echo $(bitcoind -version | grep version | cut -d \- -f1)
+echo
+
+echo "1 BTC = $"$pi6
+echo
+echo "Wallet"
+echo "BTC: "$pi5
+echo "US$: "$pi7
+echo "Miner fee: $"$fee2" to confirm in"$blocks" blocks"
+echo
+
+echo "Blockchain"
+echo "Blocks:  "$pi9
+echo "Headers: "$pi91
+echo
+
+echo "Network"
+echo "GBs recv: "$pi
+echo "GBs sent: "$pi2
+echo "Total Connections: "$pi4
+
+echo
+echo "Run Time"
+echo "Seconds: "$pi31
+echo "Minutes: "$pi32
+echo "Hours:   "$pi33
+echo "Days:    "$pi3
+echo
+
