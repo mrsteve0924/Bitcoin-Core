@@ -1,3 +1,3 @@
-# bitcoin core
-bitcoin-cli command line scripts
+# bitcoind
+using bitcoin-cli commands in a script to get useful information
 
