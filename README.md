@@ -1,3 +1,3 @@
 # bitcoind
-using bitcoin-cli commands in a script to get useful information
+using bitcoin-cli commands in bash scripts to get useful information
 
