@@ -49,4 +49,4 @@ echo "Days:    "$pi3
 echo
 
 echo "Storage"
-df -h | grep -e Filesystem -e /dev/root -e /dev/mmcblk0p3
+df -h | grep -e Filesystem -e root -e mmcblk0p3
