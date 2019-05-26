@@ -4,7 +4,7 @@ using bitcoin-cli commands in bash scripts to get useful information
 ## screenshot
 ./bitcoin
 
-![image](https://user-images.githubusercontent.com/37476191/58363628-28a9c980-7e75-11e9-8d2f-8652c99167fe.png)
+![image](https://user-images.githubusercontent.com/37476191/58383359-c26f9480-7fa3-11e9-8dd4-d7abecd3449d.png)
 
 
 ## screenshot
