@@ -1,11 +1,13 @@
 # bitcoind
 using bitcoin-cli commands in bash scripts to get useful information
 
+## screenshot
 ./bitcoin
 
 ![image](https://user-images.githubusercontent.com/37476191/58363628-28a9c980-7e75-11e9-8d2f-8652c99167fe.png)
 
 
+## screenshot
 ./addr\
 ensure you're using a unique address for each bitcoin txo
 
