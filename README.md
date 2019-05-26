@@ -1,5 +1,5 @@
 # bitcoind
-using bitcoin-cli commands in bash scripts to get useful information
+some bitcoin-cli commands put together to get useful information from bitcoind
 
 ## screenshot
 ./bitcoin
