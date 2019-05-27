@@ -4,7 +4,7 @@ some bitcoin-cli commands put together to get useful information from bitcoind
 ## screenshot
 ./bitcoin
 
-![image](https://user-images.githubusercontent.com/37476191/58383359-c26f9480-7fa3-11e9-8dd4-d7abecd3449d.png)
+![Screenshot from 2019-05-27 18-05-00](https://user-images.githubusercontent.com/37476191/58440698-0351d100-80aa-11e9-8876-37e6ea6a360a.png)
 
 
 ## screenshot
