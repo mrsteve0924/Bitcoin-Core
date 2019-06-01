@@ -1,0 +1,87 @@
+#!/bin/bash
+
+#Network
+#bytes up/down
+bytes_rcv=$(echo "scale=9; $(bitcoin-cli getnettotals | grep recv | cut -d : -f2 | sed 's/,$//')/1000000000" | bc)
+bytes_snt=$(echo "scale=9; $(bitcoin-cli getnettotals | grep sent | cut -d : -f2 | sed 's/,$//')/1000000000" | bc)
+peers=$(bitcoin-cli getconnectioncount)
+
+#run time in various time increments
+uptime_days=$(echo "scale=2; $(bitcoin-cli uptime)/86400" | bc)
+uptime_secs=$(bitcoin-cli uptime | sed -e :a -e 's/\(.*[0-9]\)\([0-9]\{3\}\)/\1,\2/;ta')
+uptime_mins=$(echo "scale=0; $(bitcoin-cli uptime)/60" | bc | sed -e :a -e 's/\(.*[0-9]\)\([0-9]\{3\}\)/\1,\2/;ta')
+uptime_hours=$(echo "scale=2; $(bitcoin-cli uptime)/60/60" | bc)
+
+#Wallet
+#BTC and $US info
+BTC0=$(bitcoin-cli getbalance)
+BTC1=$(curl -s https://api.coindesk.com/v1/bpi/currentprice/usd.json | grep -o 'rate":"[^"]*' | cut -d\" -f3)
+BTC2=$(curl -s https://api.coindesk.com/v1/bpi/currentprice/usd.json | grep -o 'rate_float":[^}]*' | cut -d : -f2)
+BTC_US=$(echo "scale=2; ($BTC0*$BTC2)/1" | bc)
+
+#miner fees and fees per tx
+feerate=$(bitcoin-cli estimatesmartfee 6 | grep fee | cut -d : -f2 | sed 's/,$//')  #miner fee in KB
+miner_fee_US=$(echo "scale=2; ($feerate*.250*$BTC2)/1" | bc)  # .250 is average transaction size in KB
+miner_fee_BTC=$(echo "$feerate*.250" | bc)  # .250 is average transaction size in KB
+conf_blocks=$(bitcoin-cli estimatesmartfee 6 | grep blocks | cut -d : -f2)
+
+#Blockchain
+#get last 3 blocks
+block0=$(bitcoin-cli getblockcount)
+block1=$(expr $block0 - 1)
+block2=$(expr $block0 - 2)
+
+#format last 3 blocks with thousands separator
+block0_fmt=$(echo $block0 | sed -e :a -e 's/\(.*[0-9]\)\([0-9]\{3\}\)/\1,\2/;ta')
+block1_fmt=$(echo $block1 | sed -e :a -e 's/\(.*[0-9]\)\([0-9]\{3\}\)/\1,\2/;ta')
+block2_fmt=$(echo $block2 | sed -e :a -e 's/\(.*[0-9]\)\([0-9]\{3\}\)/\1,\2/;ta')
+
+#get timestamps for last 3 blocks
+now=$(date +'%s')
+block0_time=$(bitcoin-cli getblock $(bitcoin-cli getblockhash $block0) | grep -w time | cut -d \, -f1 | cut -d : -f2)
+block1_time=$(bitcoin-cli getblock $(bitcoin-cli getblockhash $block1) | grep -w time | cut -d \, -f1 | cut -d : -f2)
+block2_time=$(bitcoin-cli getblock $(bitcoin-cli getblockhash $block2) | grep -w time | cut -d \, -f1 | cut -d : -f2)
+
+#elapsed time calculation for last 3 blocks
+block0_age=$(echo "($now-$block0_time)/60" | bc)
+block1_age=$(echo "($now-$block1_time)/60" | bc)
+block2_age=$(echo "($now-$block2_time)/60" | bc)
+
+#number of tx in memory pool
+mem_pool=$(bitcoin-cli getmempoolinfo | grep size | cut -d \, -f1 | cut -d : -f2 | sed -e :a -e 's/\(.*[0-9]\)\([0-9]\{3\}\)/\1,\2/;ta')
+
+#Output
+echo Bitcoin Stats
+echo $(bitcoind -version | grep version | cut -d \- -f1)
+echo
+
+echo "1 BTC = $"$BTC1
+echo
+echo "Wallet"
+echo "BTC: "$BTC0
+echo "US$: "$BTC_US
+echo "Miner fee: "$miner_fee_BTC"($"$miner_fee_US") to confirm in"$conf_blocks" blocks"
+echo
+
+echo "Blockchain"
+echo "Block: "$block0_fmt"  Age: "$block0_age" minutes"
+echo "Block: "$block1_fmt"  Age: "$block1_age" minutes"
+echo "Block: "$block2_fmt"  Age: "$block2_age" minutes"
+echo "Mempool:"$mem_pool
+echo
+
+echo "Network"
+echo "GBs recv: "$bytes_rcv
+echo "GBs sent: "$bytes_snt
+echo "Total Connections: "$peers
+
+echo
+echo "Run Time"
+echo "Seconds: "$uptime_secs
+echo "Minutes: "$uptime_mins
+echo "Hours:   "$uptime_hours
+echo "Days:    "$uptime_days
+echo
+
+echo "Storage"
+df -h | grep -e Filesystem -e root -e mmcblk0p3
