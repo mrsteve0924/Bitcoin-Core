@@ -11,6 +11,7 @@ uptime_days=$(echo "scale=2; $(bitcoin-cli uptime)/86400" | bc)
 uptime_secs=$(bitcoin-cli uptime | sed -e :a -e 's/\(.*[0-9]\)\([0-9]\{3\}\)/\1,\2/;ta')
 uptime_mins=$(echo "scale=0; $(bitcoin-cli uptime)/60" | bc | sed -e :a -e 's/\(.*[0-9]\)\([0-9]\{3\}\)/\1,\2/;ta')
 uptime_hours=$(echo "scale=2; $(bitcoin-cli uptime)/60/60" | bc)
+seconds=$(bitcoin-cli uptime)
 
 #Wallet
 #BTC and $US info
@@ -77,11 +78,9 @@ echo "Total Connections: "$peers
 
 echo
 echo "Run Time"
-echo "Seconds: "$uptime_secs
-echo "Minutes: "$uptime_mins
-echo "Hours:   "$uptime_hours
-echo "Days:    "$uptime_days
+#echo "Seconds: "$uptime_secs
+#echo "Minutes: "$uptime_mins
+#echo "Hours:   "$uptime_hours
+#echo "Days:    "$uptime_days
+printf '%dd:%dh:%dm:%ds\n' $(($seconds/86400)) $(($seconds%86400/3600)) $(($seconds%3600/60)) $(($seconds%60))
 echo
-
-echo "Storage"
-df -h | grep -e Filesystem -e root -e mmcblk0p3
